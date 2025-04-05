@@ -30,6 +30,18 @@ This is a Spring Boot backend for the Resume Builder application.
 - POST /api/resumes - Create a new resume
 - PUT /api/resumes/{id} - Update a resume
 - DELETE /api/resumes/{id} - Delete a resume
+- GET /api/resumes/templates - Get available resume templates
+
+### Templates
+- GET /api/templates - Get all available templates
+- GET /api/templates/{id} - Get a specific template
+
+### PDF Generation
+- GET /api/pdf/{id} - Generate PDF for a specific resume
+
+## Environment Setup
+
+Create a MongoDB database named `resumebuilder`. The application will automatically create the required collections.
 
 ## Security
 
@@ -38,3 +50,12 @@ The API uses JWT tokens for authentication. Each request to a protected endpoint
 ## Frontend Integration
 
 Update the `src/components/DownloadOptions.tsx` file in your frontend React application to connect to this backend.
+
+## Development
+
+To contribute to this project:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request

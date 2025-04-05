@@ -17,6 +17,7 @@ public class Resume {
     private String name;
     private String createdAt;
     private String updatedAt;
+    private String template;
     
     private PersonalInfo personalInfo;
     private List<Experience> experience = new ArrayList<>();

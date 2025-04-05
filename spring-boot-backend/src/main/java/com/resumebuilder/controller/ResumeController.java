@@ -69,6 +69,11 @@ public class ResumeController {
         resume.setCreatedAt(currentTime);
         resume.setUpdatedAt(currentTime);
         
+        // Set default template if not provided
+        if (resume.getTemplate() == null || resume.getTemplate().isEmpty()) {
+            resume.setTemplate("modern");
+        }
+        
         Resume savedResume = resumeRepository.save(resume);
         return ResponseEntity.ok(savedResume);
     }
@@ -94,6 +99,7 @@ public class ResumeController {
             existingResume.setExperience(resume.getExperience());
             existingResume.setEducation(resume.getEducation());
             existingResume.setSkills(resume.getSkills());
+            existingResume.setTemplate(resume.getTemplate());
             existingResume.setUpdatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
             
             Resume updatedResume = resumeRepository.save(existingResume);
@@ -123,5 +129,12 @@ public class ResumeController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+    
+    @GetMapping("/templates")
+    public ResponseEntity<List<String>> getAvailableTemplates() {
+        // Return a list of available templates
+        List<String> templates = List.of("modern", "professional", "creative", "minimal", "executive");
+        return ResponseEntity.ok(templates);
     }
 }

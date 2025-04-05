@@ -74,14 +74,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
       } finally {
         setIsDownloading(false);
       }
-    } else {
-      // For DOCX, we'll just show a message for now
+    } else if (format === 'docx') {
       toast({
         title: `Preparing ${format.toUpperCase()} download`,
         description: "Your resume will be downloaded in a few seconds.",
       });
       
-      // Simulate the API call
+      // You could implement an API call to the backend for DOCX generation
+      // For now, we'll simulate the API call
       setTimeout(() => {
         toast({
           title: `${format.toUpperCase()} Downloaded`,
@@ -92,7 +92,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
   };
 
   const handleShare = () => {
-    // Generate a random share link for demo purposes
+    // Generate a shareable link (in a real app, this would send data to the backend)
     const shareId = Math.random().toString(36).substring(2, 10);
     const shareLink = `https://resumegenie.example/share/${shareId}`;
     
@@ -114,10 +114,13 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
   const handleSaveToAccount = () => {
     setSaving(true);
     
-    // This would normally connect to your Spring Boot backend
-    // Example fetch call:
+    // Here we would connect to the Spring Boot backend
+    // In a real implementation, this would be an API call
+    const backendUrl = 'http://localhost:8080/api/resumes';
+    
+    // Example of how the API call would look:
     /*
-    fetch('http://localhost:8080/api/resumes', {
+    fetch(backendUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -128,10 +131,16 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
         personalInfo: resumeData.personalInfo,
         experience: resumeData.experience,
         education: resumeData.education,
-        skills: resumeData.skills
+        skills: resumeData.skills,
+        template: 'modern' // Default template
       })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
     .then(data => {
       setSaving(false);
       toast({
@@ -140,6 +149,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
       });
     })
     .catch(error => {
+      console.error('Error saving resume:', error);
       setSaving(false);
       toast({
         title: "Error saving resume",
