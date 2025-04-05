@@ -4,6 +4,8 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { FileText, Download, Share2, Save } from 'lucide-react';
 import { useToast } from './ui/use-toast';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface DownloadOptionsProps {
   resumeData: any;
@@ -12,26 +14,99 @@ interface DownloadOptionsProps {
 const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
   const { toast } = useToast();
   const [isSaving, setSaving] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   
-  const handleDownload = (format: string) => {
-    toast({
-      title: `Preparing ${format.toUpperCase()} download`,
-      description: "Your resume will be downloaded in a few seconds.",
-    });
-    
-    // In a real implementation with backend, this would call an API to generate the file
-    setTimeout(() => {
+  const handleDownload = async (format: string) => {
+    if (format === 'pdf') {
+      setIsDownloading(true);
+      
       toast({
-        title: `${format.toUpperCase()} Downloaded`,
-        description: "Your resume has been downloaded successfully.",
+        title: "Preparing PDF download",
+        description: "Your resume will be downloaded in a few seconds.",
       });
-    }, 1500);
+      
+      try {
+        // Get the resume element
+        const resumeElement = document.querySelector('.resume-preview');
+        
+        if (!resumeElement) {
+          throw new Error('Resume preview element not found');
+        }
+        
+        // Use html2canvas to capture the resume as an image
+        const canvas = await html2canvas(resumeElement, {
+          scale: 2, // Higher scale for better quality
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+        
+        // Create PDF with jsPDF
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+        
+        // Calculate aspect ratio to fit within A4
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        
+        // Add the image to the PDF
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        
+        // Save the PDF
+        pdf.save(`${resumeData.personalInfo.name || 'Resume'}.pdf`);
+        
+        toast({
+          title: "PDF Downloaded",
+          description: "Your resume has been downloaded successfully.",
+        });
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        toast({
+          title: "Download Failed",
+          description: "There was an error generating your PDF. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsDownloading(false);
+      }
+    } else {
+      // For DOCX, we'll just show a message for now
+      toast({
+        title: `Preparing ${format.toUpperCase()} download`,
+        description: "Your resume will be downloaded in a few seconds.",
+      });
+      
+      // Simulate the API call
+      setTimeout(() => {
+        toast({
+          title: `${format.toUpperCase()} Downloaded`,
+          description: "Your resume has been downloaded successfully.",
+        });
+      }, 1500);
+    }
   };
 
   const handleShare = () => {
-    toast({
-      title: "Share link generated",
-      description: "A shareable link has been copied to your clipboard.",
+    // Generate a random share link for demo purposes
+    const shareId = Math.random().toString(36).substring(2, 10);
+    const shareLink = `https://resumegenie.example/share/${shareId}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareLink).then(() => {
+      toast({
+        title: "Share link generated",
+        description: "A shareable link has been copied to your clipboard.",
+      });
+    }).catch(() => {
+      toast({
+        title: "Sharing failed",
+        description: "Could not copy link to clipboard.",
+        variant: "destructive"
+      });
     });
   };
   
@@ -94,9 +169,13 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <Button className="bg-resume-primary hover:bg-resume-secondary" onClick={() => handleDownload('pdf')}>
+          <Button 
+            className="bg-resume-primary hover:bg-resume-secondary" 
+            onClick={() => handleDownload('pdf')}
+            disabled={isDownloading}
+          >
             <Download className="h-4 w-4 mr-2" />
-            PDF
+            {isDownloading ? 'Processing...' : 'PDF'}
           </Button>
           <Button variant="outline" onClick={() => handleDownload('docx')}>
             <Download className="h-4 w-4 mr-2" />

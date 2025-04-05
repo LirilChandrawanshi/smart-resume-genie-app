@@ -29,6 +29,16 @@ const templates = [
     id: 'creative',
     name: 'Creative',
     color: 'bg-purple-500'
+  },
+  {
+    id: 'professional',
+    name: 'Professional',
+    color: 'bg-green-500'
+  },
+  {
+    id: 'academic',
+    name: 'Academic',
+    color: 'bg-red-500'
   }
 ];
 
@@ -36,12 +46,17 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ selectedTemplate, o
   return (
     <Card className="w-full">
       <CardContent className="p-4">
-        <h3 className="font-medium mb-3">Choose Template</h3>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-medium">Choose Template</h3>
+          <Button variant="link" size="sm" className="p-0 h-auto text-resume-primary" onClick={() => window.open('/templates', '_blank')}>
+            View all
+          </Button>
+        </div>
         <div className="grid grid-cols-2 gap-3">
-          {templates.map((template) => (
+          {templates.slice(0, 4).map((template) => (
             <div 
               key={template.id}
-              className={`relative cursor-pointer rounded-md overflow-hidden border-2 ${
+              className={`relative cursor-pointer rounded-md overflow-hidden border-2 hover:shadow-md transition-shadow ${
                 selectedTemplate === template.id ? 'border-resume-primary' : 'border-transparent'
               }`}
               onClick={() => onSelectTemplate(template.id)}
