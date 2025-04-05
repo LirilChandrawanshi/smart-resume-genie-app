@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { FileText, Download, Share2, Save } from 'lucide-react';
 import { useToast } from './ui/use-toast';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
 interface DownloadOptionsProps {
@@ -34,7 +34,8 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ resumeData }) => {
         }
         
         // Use html2canvas to capture the resume as an image
-        const canvas = await html2canvas(resumeElement, {
+        // Cast the Element to HTMLElement to fix type error
+        const canvas = await html2canvas(resumeElement as HTMLElement, {
           scale: 2, // Higher scale for better quality
           useCORS: true,
           logging: false,
